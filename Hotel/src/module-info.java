@@ -1,9 +1,0 @@
-/**
- * 
- */
-/**
- * @author kassy
- *
- */
-module Hotel {
-}
