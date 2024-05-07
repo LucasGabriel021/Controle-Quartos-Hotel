@@ -17,8 +17,40 @@ public class Hospede extends Thread {
         this.membrosFamilia = membrosFamilia;
     }
 
-    public void run() {
-        throw new Error("Unresolved compilation problems: \n\tThe method checkIn(Hospede) is undefined for the type Hotel\n\tThe method adicionarFilaEspera(Hospede) is undefined for the type Hotel\n\tThe method checkOut(Hospede) is undefined for the type Hotel\n");
+     @Override
+     public void run() {
+        boolean checkedIn = false;
+        boolean isEsperandoFila = false; // Booleano que verifica se a um hospede na fila
+        Random random = new Random();
+        while (!checkedIn) {
+            if (hotel.checkIn(this)) {
+                checkedIn = true;
+                System.out.println(nome + " fez check-in.");
+            } else {
+                if(!isEsperandoFila) { // Só exibir mensagem e adicionar na fila se não estiver já esperando
+                    System.out.println(nome + " está esperando por um quarto.");
+                    if (!hotel.adicionarFilaEspera(this)) {
+                        System.out.println(nome + " deixou uma reclamação e foi embora.");
+                        return;
+                    }
+                    isEsperandoFila = true; // Indica que o hospede esta na fila!
+                }
+
+                try {
+                    Thread.sleep(random.nextInt(5000)); // Tempo aleatório para passear
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        try {
+            Thread.sleep(random.nextInt(10000)); // Tempo aleatório para permanecer no quarto
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        hotel.checkOut(this);
+        System.out.println(nome + " fez check-out.");
+
     }
 
     public int getMembrosFamilia() {
