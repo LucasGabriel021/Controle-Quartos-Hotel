@@ -23,31 +23,44 @@ public class Quarto {
         this.ocupacaoAtual = 0;
     }
 
-    public synchronized void adHospede(Hospede hospede) {
-        this.hospedes.add(hospede);
+    public synchronized boolean isVago() {
+        return vago;
     }
 
-    public synchronized void rmHospede(Hospede hospede) {
-        this.hospedes.remove(hospede);
+    public synchronized List<Hospede> getHospedes() {
+        return hospedes;
     }
 
-    public synchronized boolean Completo() {
-        return this.hospedes.size() >= this.maximo;
+    public synchronized void adicionarHospede(Hospede hospede, int numeroDeMembros) {
+        if(ocupacaoAtual + numeroDeMembros <= 4) {
+            hospedes.add(hospede);
+            ocupacaoAtual += numeroDeMembros;
+            vago = false;
+        }
     }
 
-    public synchronized boolean Vazio() {
-        return this.hospedes.isEmpty();
+    public synchronized void removerHospede(Hospede hospede) {
+        hospedes.remove(hospede);
+        if (hospedes.isEmpty()) {
+            vago = true;
+            chaveNaRecepcao = true;
+        }
     }
 
-    public synchronized boolean chave() {
-        return this.chave;
+    public synchronized boolean isChaveNaRecepcao() {
+        return chaveNaRecepcao;
     }
 
-    public synchronized void retirarChave() {
-        this.chave = false;
+    public synchronized void setChaveNaRecepcao(boolean chaveNaRecepcao) {
+        this.chaveNaRecepcao = chaveNaRecepcao;
     }
 
-    public synchronized void limpeza() {
-        throw new Error("Unresolved compilation problem: \n\tThe method retornaChave() is undefined for the type Quarto\n");
+    public synchronized boolean isHospedesNoQuarto() {
+        return !hospedes.isEmpty();
+    }
+
+    public int getNumero() {
+        // TODO Auto-generated method stub
+        return this.numero;
     }
 }
