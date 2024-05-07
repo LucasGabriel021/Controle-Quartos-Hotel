@@ -34,10 +34,30 @@ public class Camareira extends Thread {
     }
 
     private Quarto encontrarQuartoParaLimpar() {
-        throw new Error("Unresolved compilation problems: \n\tquartos cannot be resolved or is not a field\n\tThe method isChaveNaRecepcao() is undefined for the type Quarto\n\tThe method isVago() is undefined for the type Quarto\n");
+        for (Quarto quarto : hotel.getQuartos()) {
+            synchronized (quarto) {
+                if (quarto.isChaveNaRecepcao()) {
+                    return quarto;
+                }
+            }
+        }
+        return null;
     }
 
-    public void limparQuarto(Quarto var1) {
-        throw new Error("Unresolved compilation problems: \n\tThe method getNumero() is undefined for the type Quarto\n\tThe method getNumero() is undefined for the type Quarto\n\tThe method setChaveNaRecepcao(boolean) is undefined for the type Quarto\n\tThe method setChaveNaRecepcao(boolean) is undefined for the type Quarto\n");
+    public void limparQuarto(Quarto quarto) {
+        synchronized (quarto) {
+            System.out.println("Camareira está limpando o quarto " + quarto.getNumero());
+            try {
+                Thread.sleep(800); // Tempo para limpar o quarto
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Camareira terminou de limpar o quarto " + quarto.getNumero());
+            quarto.setChaveNaRecepcao(false); // Marcar o quarto como limpo
+        }
+
+        synchronized (hotel) {
+            hotel.notifyAll(); // Notifica que a limpeza do quarto foi concluída
+        }
     }
 }
