@@ -47,6 +47,7 @@ public class Camareira extends Thread {
                limparQuarto(quartoParaLimpar);
            }
        }
+	   
     }
    
    private Quarto encontrarQuartoParaLimpar() {
@@ -57,6 +58,26 @@ public class Camareira extends Thread {
        }
        return null;
    }
+   
+   public void limparQuarto(Quarto quarto) {
+       synchronized (quarto) {
+           System.out.println("Camareira está limpando o quarto " + quarto.getNumero());
+           try {
+               Thread.sleep(5000); // Tempo para limpar o quarto
+           } catch (InterruptedException e) {
+               e.printStackTrace();
+           }
+           System.out.println("Camareira terminou de limpar o quarto " + quarto.getNumero());
+           quarto.setChaveNaRecepcao(true);
+       }
+       quarto.setChaveNaRecepcao(false);
+
+       synchronized (hotel) {
+           hotel.notifyAll(); // Notifica que a limpeza do quarto foi concluida
+       }
+
+   }
+   
    
 }
 
