@@ -54,10 +54,10 @@ public class Hospede extends Thread {
     }
 
     public int getMembrosFamilia() {
-        throw new Error("Unresolved compilation problem: \n");
+        return membrosFamilia;
     }
 
     public String getNome() {
-        throw new Error("Unresolved compilation problem: \n");
+        return nome;
     }
 }
