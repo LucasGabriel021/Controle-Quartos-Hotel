@@ -9,17 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Quarto {
-    private final int numero;
-    private boolean disponivel;
-    private boolean limpo = true;
-
+    private int numero;
+    private boolean vago;
+    private List<Hospede> hospedes;
     private boolean chaveNaRecepcao;
-    private final Lock lock = new ReentrantLock();
+    private int ocupacaoAtual;
 
-    public Quarto(int maximo) {
-        this.maximo = maximo;
-        this.hospedes = new ArrayList();
-        this.chave = true;
+    public Quarto(int numero) {
+        this.numero = numero;
+        this.vago = true;
+        this.hospedes = new ArrayList<>();
+        this.chaveNaRecepcao = true;
+        this.ocupacaoAtual = 0;
     }
 
     public synchronized void adHospede(Hospede hospede) {
