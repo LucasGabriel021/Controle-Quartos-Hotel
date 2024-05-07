@@ -21,6 +21,11 @@ Este projeto em Java 17 simula um sistema de reserva e controle de quartos em um
 - Caso não haja quartos vagos, o hóspede deve aguardar em uma fila até que um quarto fique disponível. Se a espera for muito longa, ele pode passear pela cidade e retornar posteriormente para tentar alugar um quarto novamente.
 - Se uma pessoa tentar alugar um quarto duas vezes sem sucesso, ela deixa uma reclamação e vai embora.
 
+## Pré-requisitos para rodar
+
+1. Java 17 instalado em seu sistema.
+2. Um ambiente de desenvolvimento integrado (IDE), como IntelliJ IDEA ou Eclipse.
+
 ## Contribuições
 
 Contribuições são bem-vindas! Sinta-se à vontade para propor melhorias, relatar problemas ou enviar solicitações de incorporação.
