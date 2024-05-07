@@ -2,6 +2,9 @@
 
 Este projeto em Java 17 simula um sistema de reserva e controle de quartos em um hotel, utilizando threads para representar as diferentes entidades envolvidas: quartos, hóspedes, camareiras, recepcionistas e hotel.
 
+## Repositório de testes
+https://github.com/LucasGabriel021/Teste-Projeto
+
 ## Entidades Representadas
 
 - Quartos
