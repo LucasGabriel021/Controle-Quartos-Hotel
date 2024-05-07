@@ -93,7 +93,26 @@ public synchronized boolean checkOut(Hospede hospede) {
         return checkOutConcluido;
     }
 
+public synchronized boolean adicionarFilaEspera(Hospede hospede) {
+        return filaEspera.offer(hospede);
+    }
 
+    public synchronized Hospede proximoFilaEspera() {
+        return filaEspera.poll();
+    }
+
+    public synchronized List<Camareira> getCamareiras() {
+        return camareiras;
+    }
+
+    public Quarto[] getQuartos() {
+        return quartos.toArray(new Quarto[0]);
+    }
+
+    public List<Recepcionista> getRecepcionistas() {
+        return recepcionistas;
+    }
+}
 
 
 
