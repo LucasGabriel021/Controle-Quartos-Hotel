@@ -1,7 +1,6 @@
 package br.com.sistema_hotel.hotel;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Random;
 
 //
 // Source code recreated from a .class file by IntelliJ IDEA
@@ -15,50 +14,23 @@ public class Camareira extends Thread {
         this.hotel = hotel;
     }
 
-    @Override
+   @Override
     public void run() {
         while (true) {
-            Quarto quartoParaLimpar = null;
-            synchronized (hotel) {
-                while ((quartoParaLimpar = encontrarQuartoParaLimpar()) == null) {
-                    try {
-                        hotel.wait(); // Espera até ser notificado de que um quarto precisa de limpeza
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            if (quartoParaLimpar != null) {
-                limparQuarto(quartoParaLimpar);
-            }
-        }
-    }
-
-    private Quarto encontrarQuartoParaLimpar() {
-        for (Quarto quarto : hotel.getQuartos()) {
-            synchronized (quarto) {
-                if (quarto.isChaveNaRecepcao()) {
-                    return quarto;
-                }
-            }
-        }
-        return null;
-    }
-
-    public void limparQuarto(Quarto quarto) {
-        synchronized (quarto) {
-            System.out.println("Camareira está limpando o quarto " + quarto.getNumero());
             try {
-                Thread.sleep(800); // Tempo para limpar o quarto
+                Quarto quarto = hotel.getQuartoParaLimpeza();
+                if (quarto != null) {
+                    System.out.println("Camareira está limpando o quarto " + quarto.getNumero());
+                    // Lógica para limpar o quarto
+                    Thread.sleep(new Random().nextInt(5000)); // Simula o tempo de limpeza
+                    quarto.setDisponivel(true);
+                    quarto.setChaveNaRecepcao(true);
+                    System.out.println("Camareira terminou de limpar o quarto " + quarto.getNumero());
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println("Camareira terminou de limpar o quarto " + quarto.getNumero());
-            quarto.setChaveNaRecepcao(false); // Marcar o quarto como limpo
-        }
-
-        synchronized (hotel) {
-            hotel.notifyAll(); // Notifica que a limpeza do quarto foi concluída
         }
     }
 }
+
