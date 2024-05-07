@@ -5,92 +5,70 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.Queue;
+import java.util.LinkedList;
 //
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by FernFlower decompiler)
 //
 
 public class Hotel {
-    private List<Quarto> quartos;
-    private BlockingQueue<Hospede> filaEspera;
-    private AtomicInteger hospedesAtivos = new AtomicInteger(0);
-    private List<Camareira> camareiras;
-    private List<Recepcionista> recepcionistas;
+    private final List<Quarto> quartos;
+    private final BlockingQueue<Quarto> filaEspera;
+    private final BlockingQueue<Hospede> filaCheckIn;
+    private final Queue<Hospede> filaEsperaCheckIn = new LinkedList<>();
+    private final BlockingQueue<Quarto> filaLimpeza;
+    private final Lock lock = new ReentrantLock();
+    private final AtomicInteger quartosOcupados = new AtomicInteger(0);
     
-    public Hotel() {
-        quartos = new ArrayList<>();
-        filaEspera = new LinkedBlockingQueue<>();
-        camareiras = new ArrayList<>();
-        recepcionistas = new ArrayList<>();
+    public Hotel(int numQuartos) {
+        this.quartos = new ArrayList<>();
+        this.filaEspera = new ArrayBlockingQueue<>(50);
+        this.filaCheckIn = new ArrayBlockingQueue<>(50);
+        this.filaLimpeza = new ArrayBlockingQueue<>(50);
 
-        // Inicializar os quartos
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < numQuartos; i++) {
             quartos.add(new Quarto(i + 1));
         }
-
-        // Inicializar as camareiras
-        for (int i = 0; i < 10; i++) {
-            camareiras.add(new Camareira(this));
-        }
-
-        // Inicializar os recepcionistas
-        for (int i = 0; i < 5; i++) {
-            recepcionistas.add(new Recepcionista(this));
-        }
     }
 
-public synchronized boolean checkIn(Hospede hospede) {
-        System.out.println("Iniciando check-in para: " + hospede.getNome() + ", Membros: " + hospede.getNumeroDeMembros());
-
-        boolean checkInConcluido = false;
-
-        for (Quarto quarto : quartos) {
-            if (quarto.isVago() && hospede.getNumeroDeMembros() <= (4 - quarto.getOcupacaoAtual())) {
-                quarto.adicionarHospede(hospede, hospede.getNumeroDeMembros());
-                System.out.println("Membros alocados: " + hospede.getNumeroDeMembros() + " para o Quarto: " + quarto.getNumero());
-                System.out.println("Check-in concluído para: " + hospede.getNome());
-                checkInConcluido = true;
-                break;
-            }
-        }
-
-        if (!checkInConcluido) {
-            System.out.println("Não há quartos disponíveis para alocar todos os membros restantes.");
-            filaEspera.offer(hospede);
-            System.out.println("Hóspede " + hospede.getNome() + " foi adicionado à lista de espera.");
-        }
-
-        return checkInConcluido;
-    }
-
-public synchronized boolean checkOut(Hospede hospede) {
-        System.out.println("Iniciando check-out para: " + hospede.getNome());
-
-        boolean checkOutConcluido = false;
-
-        for (Quarto quarto : quartos) {
-            if (quarto.getHospedes().contains(hospede)) {
-                quarto.removerHospede(hospede);
-                System.out.println("Check-out concluído para: " + hospede.getNome());
-                checkOutConcluido = true;
-                // Realocar hóspedes esperando
-                while (!filaEspera.isEmpty()) {
-                    Hospede proximoHospede = filaEspera.poll();
-                    if (checkIn(proximoHospede)) {
-                        System.out.println("Hóspede " + proximoHospede.getNome() + " realocado.");
-                    } else {
-                        break;
-                    }
+private Quarto getQuartoDisponivel() {
+        lock.lock();
+        try {
+            for (Quarto quarto : quartos) {
+                if (quarto.isDisponivel()) {
+                    return quarto;
                 }
-                break; // Sai do loop após realizar o check-out
             }
+            return null;
+        } finally {
+            lock.unlock();
         }
+    }
 
-        if (!checkOutConcluido) {
-            System.out.println("Hóspede não encontrado para check-out: " + hospede.getNome());
+    public void solicitarCheckIn(Hospede hospede) throws InterruptedException {
+        if (quartosOcupados.get() < quartos.size()) {
+            filaCheckIn.offer(hospede);
+            atenderPedidosCheckIn();
+        } else {
+            filaEspera.offer(getQuartoDisponivel()); // Adiciona o quarto à fila de espera
+            System.out.println(hospede.getNome() + " está aguardando na fila de espera.");
         }
-
-        return checkOutConcluido;
+    }
+    
+public void fazerCheckOut(Hospede hospede) {
+        Quarto quarto = encontrarQuartoDoHospede(hospede);
+        if (quarto != null) {
+            quarto.removerHospede(hospede);
+            quarto.devolverChave(); // Devolve a chave à recepção
+            quarto.iniciarLimpeza(); // Inicia a limpeza do quarto
+            System.out.println("Hóspedes do quarto " + quarto.getNumero() + " saíram para passear. Quarto sendo limpo.");
+            quartosOcupados.decrementAndGet();
+            System.out.println(hospede.getNome() + " fez check-out do quarto " + quarto.getNumero() + " e devolveu a chave à recepção.");
+        }
     }
 
 public synchronized boolean adicionarFilaEspera(Hospede hospede) {
