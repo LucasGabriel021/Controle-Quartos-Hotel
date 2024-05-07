@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry excluding="br/com/sistema_hotel/hotel/" kind="src" path="sistema_hotel/src"/>
+	<classpathentry kind="src" path="sistema_hotel/src/br/com/sistema_hotel/hotel"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
