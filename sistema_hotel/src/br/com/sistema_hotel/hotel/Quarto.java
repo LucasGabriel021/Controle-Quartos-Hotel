@@ -1,17 +1,20 @@
 package br.com.sistema_hotel.hotel;
 
+import java.util.concurrent.locks.*;
 //
 // Source code recreated from a .class file by IntelliJ IDEA
 // (powered by FernFlower decompiler)
 //
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Quarto {
-    private int maximo;
-    private List<Hospede> hospedes;
-    private boolean chave;
+    private final int numero;
+    private boolean disponivel;
+    private boolean limpo = true;
+
+    private boolean chaveNaRecepcao;
+    private final Lock lock = new ReentrantLock();
 
     public Quarto(int maximo) {
         this.maximo = maximo;
