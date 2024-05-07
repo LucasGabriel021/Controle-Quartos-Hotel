@@ -16,21 +16,47 @@ public class Camareira extends Thread {
 
    @Override
     public void run() {
-        while (true) {
-            try {
-                Quarto quarto = hotel.getQuartoParaLimpeza();
-                if (quarto != null) {
-                    System.out.println("Camareira está limpando o quarto " + quarto.getNumero());
-                    // Lógica para limpar o quarto
-                    Thread.sleep(new Random().nextInt(5000)); // Simula o tempo de limpeza
-                    quarto.setDisponivel(true);
-                    quarto.setChaveNaRecepcao(true);
-                    System.out.println("Camareira terminou de limpar o quarto " + quarto.getNumero());
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+	   while (true) {
+           Quarto quartoParaLimpar = null;
+           synchronized (hotel) {
+//               boolean found = false;
+//               for (Quarto quarto : hotel.quartos) {
+//                   if (quarto.isChaveNaRecepcao() && quarto.isVago() || !quarto.isHospedesNoQuarto()) {
+//                       limparQuarto(quarto);
+//                       found = true;
+//                       break;
+//                   }
+//               }
+//               if(!found) {
+//                   try {
+//                       hotel.wait();
+//                   } catch (InterruptedException e) {
+//                       e.printStackTrace();
+//                   }
+//               }
+
+               while((quartoParaLimpar = encontrarQuartoParaLimpar()) == null) {
+                   try {
+                       hotel.wait(); // Espera até ser notificado de que um quarto precisa de limpeza
+                   } catch (InterruptedException e) {
+                       e.printStackTrace();
+                   }
+               }
+           }
+           if(quartoParaLimpar != null) {
+               limparQuarto(quartoParaLimpar);
+           }
+       }
     }
+   
+   private Quarto encontrarQuartoParaLimpar() {
+       for (Quarto quarto : hotel.quartos) {
+           if(quarto.isChaveNaRecepcao() && quarto.isVago()) {
+               return quarto;
+           }
+       }
+       return null;
+   }
+   
 }
 
