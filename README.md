@@ -28,12 +28,14 @@ https://github.com/LucasGabriel021/Teste-Projeto
 
 1. Java 17 instalado em seu sistema.
 2. Um ambiente de desenvolvimento integrado (IDE), como IntelliJ IDEA ou Eclipse.
+3. Entrar na pasta 'atividade_hotel'.
+4. Executar a 'Main' dentro do pacote 'app'.
 
 ## Integrantes
 
-João Pedro de Oliveira Teles
-Kassya Beathrys Rosa Silva
-Leonardo Casagrande e Silva
+João Pedro de Oliveira Teles  
+Kassya Beathrys Rosa Silva  
+Leonardo Casagrande e Silva  
 Lucas Gabriel Gomes de Oliveira
 
 ## Contribuições
