@@ -60,4 +60,25 @@ public class Recepcionista extends Thread {
             return false; // Retorna falso para indicar que o check-in falhou
         }
     }
+
+    public void checkOut(Hospede hospede) {
+        synchronized (hotel) {
+            boolean quartoLiberado = false;
+            for (Quarto quarto : hotel.getQuartos()) {
+                if (quarto.getHospedes().contains(hospede)) {
+                    quarto.removerHospede(hospede);
+                    if (quarto.getHospedes().isEmpty()) {
+                        quarto.deixarChaveNaRecepcao(hospede.getNome());
+                        quarto.setVago(true);
+                        quarto.setLimpo(false);
+                        quartoLiberado = true;
+                        System.out.println("Quarto " + quarto.getNumero() + " está agora vago e pronto para limpeza.");
+                    }
+                }
+            }
+            if (quartoLiberado) {
+                hotel.quartoLiberado();  // Notificar que um quarto foi liberado
+            }
+        }
+    }
 }
