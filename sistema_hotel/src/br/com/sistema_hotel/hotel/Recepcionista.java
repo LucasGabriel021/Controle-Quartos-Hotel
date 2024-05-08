@@ -39,4 +39,25 @@ public class Recepcionista extends Thread {
             }
         }
     }
+
+    public boolean checkIn(Hospede hospede) {
+        synchronized (hotel) {
+            if (hospede.isEstadiaConcluida()) {
+                System.out.println("Hóspede " + hospede.getNome() + " já concluiu o check-in.");
+                return true;
+            }
+
+            Quarto quarto = hotel.getVagoQuarto();
+            if (quarto != null) {
+                if (quarto.adicionarHospede(hospede, hospede.getMembrosFamilia())) {
+                    hospede.setEstadiaConcluida(true);
+                    System.out.println("Check-in realizado com sucesso para " + hospede.getNome() + ".");
+                    return true;
+                }
+            } else {
+                System.out.println("Check-in falhou: Não há quartos disponíveis para " + hospede.getNome());
+            }
+            return false; // Retorna falso para indicar que o check-in falhou
+        }
+    }
 }
