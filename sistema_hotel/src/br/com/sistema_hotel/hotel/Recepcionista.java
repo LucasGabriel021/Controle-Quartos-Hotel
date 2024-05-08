@@ -81,4 +81,13 @@ public class Recepcionista extends Thread {
             }
         }
     }
+
+    public void adicionarFilaDeEspera(Hospede hospede) {
+        try {
+            filaDeEspera.put(hospede);
+            System.out.println(hospede.getNome() + " foi adicionado à fila de espera.");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 }
