@@ -1,9 +1,7 @@
-package br.com.sistema_hotel.hotel;
-
-import java.util.Random;
+package hotel;
 
 public class Camareira extends Thread {
-    private final Hotel hotel;
+    private Hotel hotel;
 
     public Camareira(Hotel hotel) {
         this.hotel = hotel;
@@ -12,17 +10,24 @@ public class Camareira extends Thread {
     @Override
     public void run() {
         while (!Thread.interrupted()) {
+            Quarto quartoParaLimpar = null;
             synchronized (hotel) {
-                try {
-                    hotel.wait();  // Esperar até que um quarto esteja disponível para limpeza
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
+                while ((quartoParaLimpar = encontrarQuartoParaLimpar()) == null) {
+                    try {
+                        hotel.wait();  // Espera até que um quarto esteja pronto para limpeza
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
                 }
-                // Após ser notificado, encontrar um quarto para limpar
-                Quarto quartoParaLimpar = encontrarQuartoParaLimpar();
-                if (quartoParaLimpar != null) {
-                    limparQuarto(quartoParaLimpar);
+            }
+
+            if (quartoParaLimpar != null) {
+                limparQuarto(quartoParaLimpar);
+                synchronized (hotel) {
+                    quartoParaLimpar.setVago(true);  // Marca o quarto como vago após a limpeza
+                    quartoParaLimpar.setChaveNaRecepcao(false);  // A chave retorna à recepção
+                    hotel.notifyAll();  // Notifica que a limpeza do quarto foi concluída
                 }
             }
         }
@@ -41,9 +46,7 @@ public class Camareira extends Thread {
 
     public void limparQuarto(Quarto quarto) {
         synchronized (quarto) {
-            quarto.pegarChaveDaRecepcao("Camareira");
             System.out.println("Camareira está limpando o quarto " + quarto.getNumero());
-
             try {
                 Thread.sleep(5000); // Tempo para limpar o quarto
             } catch (InterruptedException e) {
@@ -53,8 +56,8 @@ public class Camareira extends Thread {
 
             quarto.setLimpo(true);
             quarto.setVago(true); // Marcar o quarto como vago somente depois da limpeza
+            quarto.setChaveNaRecepcao(true); // Chave não está na recepção porque o quarto está pronto
             System.out.println("Camareira terminou de limpar o quarto " + quarto.getNumero());
-            quarto.deixarChaveNaRecepcao("Camareira"); // A camareira deixa a chave na recepção
         }
         synchronized (hotel) {
             hotel.notifyAll(); // Notifica que a limpeza do quarto foi concluída

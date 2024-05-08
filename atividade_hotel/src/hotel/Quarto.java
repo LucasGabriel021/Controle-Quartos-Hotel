@@ -1,4 +1,4 @@
-package br.com.sistema_hotel.hotel;
+package hotel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +20,12 @@ public class Quarto {
         this.vago = true;  // Inicialmente, todos os quartos estão vazios
     }
 
-    public synchronized List<Hospede> getHospedes() {
-        return hospedes;
-    }
-
     public synchronized boolean isVago() {
         return ocupacaoAtual == 0;
+    }
+
+    public synchronized List<Hospede> getHospedes() {
+        return new ArrayList<>(hospedes);  // Retorna uma cópia para prevenir nodificações externas
     }
 
     public synchronized boolean adicionarHospede(Hospede hospede, int numeroDeMembros) {
@@ -61,14 +61,8 @@ public class Quarto {
         return chaveNaRecepcao;
     }
 
-    public synchronized void deixarChaveNaRecepcao(String nome) {
-        this.chaveNaRecepcao = true;
-        System.out.println("Chave do quarto " + numero + " deixada na recepção por " + nome);
-    }
-
-    public synchronized void pegarChaveDaRecepcao(String nome) {
-        this.chaveNaRecepcao = false;
-        System.out.println("Chave do quarto " + numero + " retirada da recepção por " + nome);
+    public synchronized void setChaveNaRecepcao(boolean chaveNaRecepcao) {
+        this.chaveNaRecepcao = chaveNaRecepcao;
     }
 
     public int getNumero() {

@@ -1,3 +1,5 @@
+package hotel;
+
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -9,8 +11,8 @@ public class Hotel {
     List<Quarto> quartos;
     private BlockingQueue<Hospede> filaEspera;
     private AtomicInteger hospedesAtivos = new AtomicInteger(0);
-    List<Camareira> camareiras;
-    List<Recepcionista> recepcionistas;
+    public List<Camareira> camareiras;
+    public List<Recepcionista> recepcionistas;
     private Random random;
 
     public Hotel() {
@@ -20,17 +22,17 @@ public class Hotel {
         random = new Random();
 
         // Inicializar os quartos
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 40; i++) {
             quartos.add(new Quarto(i + 1));
         }
 
         // Inicializar as camareiras
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 30; i++) {
             camareiras.add(new Camareira(this));
         }
 
         // Inicializar os recepcionistas
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 20; i++) {
             recepcionistas.add(new Recepcionista(this));
         }
     }
@@ -51,12 +53,7 @@ public class Hotel {
 
     // Retorna um recepcionista aleatória
     public Recepcionista getRecepciistaAleatoria() {
-        int index = random.nextInt(recepcionistas.size());
-        return recepcionistas.get(index);
+        int recepcionistaAtual = random.nextInt(recepcionistas.size());
+        return recepcionistas.get(recepcionistaAtual);
     }
-
-    public synchronized void quartoLiberado() {
-        notifyAll();  // Notifica todas as threads esperando que um quarto foi liberado
-    }
-
 }
