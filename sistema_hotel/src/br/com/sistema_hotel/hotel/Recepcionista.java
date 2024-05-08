@@ -1,29 +1,41 @@
 package br.com.sistema_hotel.hotel;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+public class Recepcionista extends Thread {
+    private Hotel hotel;
+    private BlockingQueue<Hospede> filaDeEspera;
+    private static final int RETRY_DELAY_MS = 5000; // 5 segundos de espera para nova tentativa
+    private static final int WALK_DELAY_MS = 10000; // 10 segundos de passeio pela cidade
 
-public class Recepcionista(Hotel hotel) {
+
+    public Recepcionista(Hotel hotel) {
         this.hotel = hotel;
+        this.filaDeEspera = new LinkedBlockingQueue<>();
     }
-    
+
     @Override
     public void run() {
-        while (true) {
+        while (!Thread.interrupted()) {
             try {
-                Hospede hospede = hotel.atenderPedidosCheckIn();
-                if (hospede != null) {
-                    System.out.println("Recepcionista está realizando o check-in para " + hospede.getNome());
-                    // Lógica para realizar o check-in
-                    Thread.sleep(new Random().nextInt(5000)); // Simula o tempo de check-in
-                    System.out.println("Check-in realizado para " + hospede.getNome());
+                Hospede hospede = filaDeEspera.take();
+                if (!checkIn(hospede)) {
+                    int currentAttempts = hospede.incrementarTentativas();
+                    if (currentAttempts >= 2) {
+                        System.out.println(hospede.getNome() + " deixou uma reclamação e foi embora após duas tentativas de check-in.");
+                        continue; // O hóspede desiste e não é colocado de volta na fila
+                    }
+                    System.out.println(hospede.getNome() + " vai passear pela cidade e tentar novamente mais tarde.");
+                    Thread.sleep(RETRY_DELAY_MS);
+                    filaDeEspera.put(hospede); // Coloca o hóspede de volta na fila após o passeio
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                Thread.currentThread().interrupt();
+                return;
             }
         }
     }
