@@ -1,16 +1,15 @@
 package br.com.sistema_hotel.hotel;
 
 import java.util.Random;
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
 
 public class Hospede extends Thread {
-	
-	private Hotel hotel;
+
+    private Hotel hotel;
     private String nome;
     private int membrosFamilia;
+    private int tentativas = 0;
+    private boolean estadiaConcluida = false;
+    private Quarto quarto;
 
     public Hospede(Hotel hotel, String nome, int membrosFamilia) {
         this.hotel = hotel;
@@ -54,11 +53,41 @@ public class Hospede extends Thread {
 
      }
 
+    public int incrementarTentativas() {
+        return tentativas++;
+    }
+
+    public int getTentativas() {
+        return tentativas;
+    }
+
     public int getMembrosFamilia() {
         return membrosFamilia;
     }
 
     public String getNome() {
         return nome;
+    }
+
+    public boolean isEstadiaConcluida() {
+        return estadiaConcluida;
+    }
+
+    public void setEstadiaConcluida(boolean estadiaConcluida) {
+        this.estadiaConcluida = estadiaConcluida;
+    }
+
+    public Quarto getQuarto() {
+        return quarto;
+    }
+
+    public void sairParaPassear() {
+        // Hospedes devem deixar a chave na recepção ao sair para passear
+        if (quarto != null && !quarto.isChaveNaRecepcao()) {
+            System.out.println(getNome() + " e seu grupo estão saindo para passear.");
+            quarto.deixarChaveNaRecepcao(this.nome);
+        } else {
+            System.out.println("Erro: " + getNome() + " não tem um quarto atribuído.");
+        }
     }
 }
