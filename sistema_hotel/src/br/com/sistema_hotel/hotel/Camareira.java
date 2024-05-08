@@ -2,52 +2,30 @@ package br.com.sistema_hotel.hotel;
 
 import java.util.Random;
 
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
-
 public class Camareira extends Thread {
-    private final Hotel hotel;;
+    private final Hotel hotel;
 
     public Camareira(Hotel hotel) {
         this.hotel = hotel;
     }
 
-   @Override
+    @Override
     public void run() {
-	   while (true) {
-           Quarto quartoParaLimpar = null;
-           synchronized (hotel) {
-//               boolean found = false;
-//               for (Quarto quarto : hotel.quartos) {
-//                   if (quarto.isChaveNaRecepcao() && quarto.isVago() || !quarto.isHospedesNoQuarto()) {
-//                       limparQuarto(quarto);
-//                       found = true;
-//                       break;
-//                   }
-//               }
-//               if(!found) {
-//                   try {
-//                       hotel.wait();
-//                   } catch (InterruptedException e) {
-//                       e.printStackTrace();
-//                   }
-//               }
-
-               while((quartoParaLimpar = encontrarQuartoParaLimpar()) == null) {
-                   try {
-                       hotel.wait(); // Espera até ser notificado de que um quarto precisa de limpeza
-                   } catch (InterruptedException e) {
-                       e.printStackTrace();
-                   }
-               }
-           }
-           if(quartoParaLimpar != null) {
-               limparQuarto(quartoParaLimpar);
-           }
-       }
-	   
+        while (!Thread.interrupted()) {
+            synchronized (hotel) {
+                try {
+                    hotel.wait();  // Esperar até que um quarto esteja disponível para limpeza
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                // Após ser notificado, encontrar um quarto para limpar
+                Quarto quartoParaLimpar = encontrarQuartoParaLimpar();
+                if (quartoParaLimpar != null) {
+                    limparQuarto(quartoParaLimpar);
+                }
+            }
+        }
     }
    
    private Quarto encontrarQuartoParaLimpar() {
