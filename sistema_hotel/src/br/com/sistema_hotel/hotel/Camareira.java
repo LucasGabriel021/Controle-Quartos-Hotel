@@ -27,35 +27,38 @@ public class Camareira extends Thread {
             }
         }
     }
-   
-   private Quarto encontrarQuartoParaLimpar() {
-       for (Quarto quarto : hotel.quartos) {
-           if(quarto.isChaveNaRecepcao() && quarto.isVago()) {
-               return quarto;
-           }
-       }
-       return null;
-   }
-   
-   public void limparQuarto(Quarto quarto) {
-       synchronized (quarto) {
-           System.out.println("Camareira está limpando o quarto " + quarto.getNumero());
-           try {
-               Thread.sleep(5000); // Tempo para limpar o quarto
-           } catch (InterruptedException e) {
-               e.printStackTrace();
-           }
-           System.out.println("Camareira terminou de limpar o quarto " + quarto.getNumero());
-           quarto.setChaveNaRecepcao(true);
-       }
-       quarto.setChaveNaRecepcao(false);
 
-       synchronized (hotel) {
-           hotel.notifyAll(); // Notifica que a limpeza do quarto foi concluida
-       }
+    private Quarto encontrarQuartoParaLimpar() {
+        synchronized (hotel) {
+            for (Quarto quarto : hotel.getQuartos()) {
+                if (quarto.isChaveNaRecepcao() && quarto.isVago() && !quarto.isLimpo()) {
+                    return quarto;
+                }
+            }
+            return null;
+        }
+    }
 
-   }
-   
-   
+    public void limparQuarto(Quarto quarto) {
+        synchronized (quarto) {
+            quarto.pegarChaveDaRecepcao("Camareira");
+            System.out.println("Camareira está limpando o quarto " + quarto.getNumero());
+
+            try {
+                Thread.sleep(5000); // Tempo para limpar o quarto
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+
+            quarto.setLimpo(true);
+            quarto.setVago(true); // Marcar o quarto como vago somente depois da limpeza
+            System.out.println("Camareira terminou de limpar o quarto " + quarto.getNumero());
+            quarto.deixarChaveNaRecepcao("Camareira"); // A camareira deixa a chave na recepção
+        }
+        synchronized (hotel) {
+            hotel.notifyAll(); // Notifica que a limpeza do quarto foi concluída
+        }
+    }
+
 }
-
